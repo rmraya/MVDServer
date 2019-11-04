@@ -2,3 +2,5 @@ bin/
 dist/
 .DS_Store
 .scannerwork/
+sonar-project.properties
+sonarqube.sh
