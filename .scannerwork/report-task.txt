@@ -1,0 +1,6 @@
+projectKey=MVDServer
+serverUrl=http://localhost:9000
+serverVersion=7.9.1.27448
+dashboardUrl=http://localhost:9000/dashboard?id=MVDServer
+ceTaskId=AW43JxxukFF4qO_ONI6F
+ceTaskUrl=http://localhost:9000/api/ce/task?id=AW43JxxukFF4qO_ONI6F
