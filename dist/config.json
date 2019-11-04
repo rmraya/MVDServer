@@ -1,7 +1,0 @@
-{
-    "port": 8000,
-    "keystore": "",
-    "password": "",
-    "webDir": "www",
-    "stopWord": "haltNow"
-}
