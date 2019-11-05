@@ -16,6 +16,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
 import java.security.KeyManagementException;
@@ -25,17 +27,16 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.lang.System.Logger;
-import java.lang.System.Logger.Level;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
 
-import com.maxprograms.converters.Utils;
 import com.sun.net.httpserver.HttpServer;
 import com.sun.net.httpserver.HttpsConfigurator;
 import com.sun.net.httpserver.HttpsServer;
@@ -114,7 +115,7 @@ public class MVDServer {
 
     public MVDServer(String[] args) throws IOException, KeyStoreException, UnrecoverableKeyException,
             NoSuchAlgorithmException, KeyManagementException, CertificateException {
-        String[] params = Utils.fixPath(args);
+        String[] params = fixPath(args);
 
         for (int i = 0; i < params.length; i++) {
             String param = params[i];
@@ -201,4 +202,25 @@ public class MVDServer {
     protected String getHostName() {
         return hostName;
     }
+
+    public static String[] fixPath(String[] args) {
+		List<String> result = new ArrayList<>();
+		String current = "";
+		for (int i = 0; i < args.length; i++) {
+			String arg = args[i];
+			if (arg.startsWith("-")) {
+				if (!current.isEmpty()) {
+					result.add(current.trim());
+					current = "";
+				}
+				result.add(arg);
+			} else {
+				current = current + " " + arg;
+			}
+		}
+		if (!current.isEmpty()) {
+			result.add(current.trim());
+		}
+		return result.toArray(new String[result.size()]);
+	}
 }
