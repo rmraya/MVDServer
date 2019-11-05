@@ -23,9 +23,9 @@ public class FileHandler implements HttpHandler {
     private static Logger logger = System.getLogger(FileHandler.class.getName());
 
     private JSONObject contentTypes;
-    private Server parent;
+    private MVDServer parent;
 
-    public FileHandler(Server parent) throws IOException {
+    public FileHandler(MVDServer parent) throws IOException {
         this.parent = parent;
         loadContentTypes();
     }

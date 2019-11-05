@@ -31,12 +31,16 @@ import com.sun.net.httpserver.HttpsServer;
 
 import org.json.JSONObject;
 
-public class Server {
+public class MVDServer {
 
-    private static Logger logger = System.getLogger(Server.class.getName());
+    private static Logger logger = System.getLogger(MVDServer.class.getName());
 
     private HttpServer webServer;
-    private int port = 8000;
+    private HttpsServer secureServer;
+
+    private int httpPort = 8080;
+    private int httpsPort = -1;
+    private String hostName = "";
     private String keystore = "";
     private String password = "";
     private String stopWord = "";
@@ -44,7 +48,7 @@ public class Server {
 
     public static void main(String[] args) {
         try {
-            Server instance = new Server(args);
+            MVDServer instance = new MVDServer(args);
             instance.run();
         } catch (IOException | UnrecoverableKeyException | KeyManagementException | KeyStoreException
                 | NoSuchAlgorithmException | CertificateException e) {
@@ -74,8 +78,11 @@ public class Server {
             }
         }
         JSONObject config = new JSONObject(builder.toString());
-        if (config.has("port")) {
-            port = config.getInt("port");
+        if (config.has("httpPort")) {
+            httpPort = config.getInt("httpPort");
+        }
+        if (config.has("httpsPort")) {
+            httpsPort = config.getInt("httpsPort");
         }
         if (config.has("keystore")) {
             keystore = config.getString("keystore");
@@ -86,12 +93,16 @@ public class Server {
         if (config.has("webDir")) {
             setWebDir(config.getString("webDir"));
         }
+        if (config.has("hostName")) {
+            hostName = config.getString("hostName");
+        }
         if (config.has("stopWord")) {
             stopWord = config.getString("stopWord");
         }
     }
 
-    public Server(String[] args) throws IOException, KeyStoreException, UnrecoverableKeyException, NoSuchAlgorithmException, KeyManagementException, CertificateException {
+    public MVDServer(String[] args) throws IOException, KeyStoreException, UnrecoverableKeyException,
+            NoSuchAlgorithmException, KeyManagementException, CertificateException {
         String[] params = Utils.fixPath(args);
 
         for (int i = 0; i < params.length; i++) {
@@ -107,24 +118,13 @@ public class Server {
             if (param.equals("-config") && (i + 1) < params.length) {
                 loadConfig(params[i + 1]);
             }
-            if (param.equals("-port") && (i + 1) < params.length) {
-                port = Integer.parseInt(params[i + 1]);
-            }
-            if (param.equals("-keystore") && (i + 1) < params.length) {
-                keystore = params[i + 1];
-            }
-            if (param.equals("-password") && (i + 1) < params.length) {
-                password = params[i + 1];
-            }
-            if (param.equals("-webDir") && (i + 1) < params.length) {
-                setWebDir(params[i + 1]);
-            }
-            if (param.equals("-stopWord")&& (i + 1) < params.length) {
-                stopWord = params[i+1];
-            }
         }
 
-        if (!keystore.isEmpty() && !password.isEmpty()) {
+        webServer = HttpServer.create(new InetSocketAddress(httpPort), 0);
+        webServer
+                .setExecutor(new ThreadPoolExecutor(4, 8, 30, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(100)));
+
+        if (!keystore.isEmpty() && !password.isEmpty() && httpsPort != -1) {
             KeyStore store = KeyStore.getInstance("JKS");
             try (FileInputStream inputStream = new FileInputStream(keystore)) {
                 store.load(inputStream, password.toCharArray());
@@ -139,11 +139,16 @@ public class Server {
             SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
             sslContext.init(keyManager.getKeyManagers(), trustManager.getTrustManagers(), new SecureRandom());
 
-            webServer = HttpsServer.create(new InetSocketAddress(port), 0);
-            ((HttpsServer) webServer).setHttpsConfigurator(new HttpsConfigurator(sslContext));
+            secureServer = HttpsServer.create(new InetSocketAddress(httpsPort), 0);
+            secureServer.setHttpsConfigurator(new HttpsConfigurator(sslContext));
+            secureServer.createContext("/", new FileHandler(this));
+            secureServer.setExecutor(
+                    new ThreadPoolExecutor(4, 8, 30, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(100)));
+
             logger.log(Level.INFO, "HTTPS Server created");
+            webServer.createContext("/", new RedirectHandler(this));
         } else {
-            webServer = HttpServer.create(new InetSocketAddress(port), 0);
+            webServer.createContext("/", new FileHandler(this));
         }
     }
 
@@ -152,39 +157,38 @@ public class Server {
         if (File.separator.equals("\\")) {
             launcher = "   server.bat ";
         }
-        String help = "Usage:\n\n" + launcher
-                + "[-help] [-version] [-config config.json][-port portNumber] [-keystore storeLocation]\n"
-                + "              [-password storePassword] [-webDir webDirectory]\n"
+        String help = "Usage:\n\n" + launcher + "[-help] [-version] -config config.json\n"
                 + "              [-workDir workDirectory] [-stopWord word]\n " + "Where:\n\n"
                 + "   -help:      (optional) Display this help information and exit\n"
                 + "   -version:   (optional) Display version & build information and exit\n"
-                + "   -config:    (optional) Load configuration from JSON file\n"
-                + "   -port:      (optional) Port for running HTTP or HTTPS server. Default is 8000\n"
-                + "   -keystore:  (optional) Java Keystore that contains SSL certificate for HTTPS\n"
-                + "   -password:  (optional) Password for the Java Keystore\n"
-                + "   -webDir:    (optional) Directory with web files to serve\n"
-                + "   -stopWord:  (optional) Security word for stopping the server\n";
+                + "   -config:    Load configuration from JSON file\n";
         System.out.println(help);
     }
 
     private void run() throws IOException {
-        webServer.createContext("/", new FileHandler(this));
-        webServer.setExecutor(new ThreadPoolExecutor(4, 8, 30, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(100)));
+        if (secureServer != null) {
+            secureServer.start();
+            logger.log(Level.INFO, "HTTPS Server started");
+        }
         webServer.start();
         logger.log(Level.INFO, "Server started");
     }
 
-    public File getWebDir() {
+    protected File getWebDir() {
         if (webDir == null) {
             webDir = new File(System.getProperty("user.dir") + File.separator + "www");
         }
         return webDir;
     }
 
-    public void stopServer(String word) {
+    protected void stopServer(String word) {
         if (!stopWord.isEmpty() && stopWord.equals(word)) {
             logger.log(Level.INFO, "Stopping server");
             System.exit(0);
         }
+    }
+
+    protected String getHostName() {
+        return hostName;
     }
 }

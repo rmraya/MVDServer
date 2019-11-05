@@ -1,7 +1,9 @@
 {
-    "port": 8000,
+    "hostName": "mysite.com",
+    "httpPort": 8080,
+    "httpsPort": 8443,
     "keystore": "",
     "password": "",
     "webDir": "www",
-    "stopWord": "haltNow"
+    "stopWord": "halt"
 }
