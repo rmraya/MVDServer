@@ -1,3 +1,14 @@
+/*******************************************************************************
+ * Copyright (c) 2019 Maxprograms.
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 1.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/org/documents/epl-v10.html
+ *
+ * Contributors:
+ *     Maxprograms - initial API and implementation
+ *******************************************************************************/
 package com.maxprograms.mvdserver;
 
 import java.io.BufferedReader;
@@ -121,8 +132,7 @@ public class MVDServer {
         }
 
         webServer = HttpServer.create(new InetSocketAddress(httpPort), 0);
-        webServer
-                .setExecutor(new ThreadPoolExecutor(4, 8, 30, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(100)));
+        webServer.setExecutor(new ThreadPoolExecutor(4, 8, 30, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(100)));
 
         if (!keystore.isEmpty() && !password.isEmpty() && httpsPort != -1) {
             KeyStore store = KeyStore.getInstance("JKS");
@@ -168,10 +178,10 @@ public class MVDServer {
     private void run() throws IOException {
         if (secureServer != null) {
             secureServer.start();
-            logger.log(Level.INFO, "HTTPS Server started");
+            logger.log(Level.INFO, "HTTPS Server started on port " + httpsPort);
         }
         webServer.start();
-        logger.log(Level.INFO, "Server started");
+        logger.log(Level.INFO, "Server started on port " + httpPort);
     }
 
     protected File getWebDir() {
