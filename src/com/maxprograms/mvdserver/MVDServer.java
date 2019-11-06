@@ -169,7 +169,7 @@ public class MVDServer {
             launcher = "   server.bat ";
         }
         String help = "Usage:\n\n" + launcher + "[-help] [-version] -config config.json\n"
-                + "              [-workDir workDirectory] [-stopWord word]\n " + "Where:\n\n"
+                + "Where:\n\n"
                 + "   -help:      (optional) Display this help information and exit\n"
                 + "   -version:   (optional) Display version & build information and exit\n"
                 + "   -config:    Load configuration from JSON file\n";
