@@ -12,19 +12,13 @@
 package com.maxprograms.mvdserver;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.lang.System.Logger;
-import java.lang.System.Logger.Level;
-
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 public class RedirectHandler implements HttpHandler {
 
-    private static Logger logger = System.getLogger(RedirectHandler.class.getName());
     private MVDServer parent;
 
     public RedirectHandler(MVDServer parent) throws IOException {
@@ -37,10 +31,9 @@ public class RedirectHandler implements HttpHandler {
 
         String newLocation = "https://" + parent.getHostName() + uri.toString();
 
-        logger.log(Level.INFO, "redirecting to " + newLocation);
-
         exchange.getResponseHeaders().add("Upgrade-Insecure-Requests", "1");
         exchange.getResponseHeaders().add("Location", newLocation);
+        exchange.getResponseHeaders().add("Non-Authoritative-Reason", "HSTS");
         exchange.sendResponseHeaders(307, -1);
     }
 
