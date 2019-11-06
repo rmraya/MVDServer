@@ -101,6 +101,7 @@ public class FileHandler implements HttpHandler {
                 }
             } else {
                 logger.log(Level.WARNING, "Missing resource requested: " + uri.toString());
+                exchange.getResponseHeaders().add("Upgrade-Insecure-Requests", "1");
                 exchange.sendResponseHeaders(404, -1l);
             }
         } catch (IOException ioe) {
