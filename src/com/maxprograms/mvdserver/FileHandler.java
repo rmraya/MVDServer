@@ -62,19 +62,29 @@ public class FileHandler implements HttpHandler {
             }
             Headers headers = exchange.getRequestHeaders();
 
-            if (cachedResources.containsKey(url) && !headers.get("If-None-Match").isEmpty()) {
-                Long cached = cachedResources.get(url);
-                if (cached + CACHETIME < System.currentTimeMillis()) {
-                    System.out.println("Cached " + url);
-                    exchange.sendResponseHeaders(304, -1l);
-                    return;
+            if (cachedResources.containsKey(url)) {
+                if (!headers.get("If-None-Match").isEmpty()) {
+                    Long cached = cachedResources.get(url);
+                    if (cached + CACHETIME < System.currentTimeMillis()) {
+                        System.out.println("Cached " + url);
+                        exchange.sendResponseHeaders(304, -1l);
+                        return;
+                    }
+                    System.out.println("Caches is too old for " + url);
+                    cachedResources.remove(url);
+                } else {
+                    System.out.println("No cached version requested for " + url);
                 }
-                cachedResources.remove(url);
+            } else {
+                System.out.println(url + " not cached");
             }
 
             File resource = new File(parent.getWebDir(), url);
 
             if (resource.exists()) {
+
+                cachedResources.put(url, System.currentTimeMillis());
+
                 String contentType = "text/html";
                 String name = resource.getName().toLowerCase();
                 if (name.indexOf('.') != -1) {
@@ -106,14 +116,13 @@ public class FileHandler implements HttpHandler {
                         }
                     }
                 }
-                cachedResources.put(url, System.currentTimeMillis());
             } else {
-                logger.log(Level.WARNING, "Missing resource requested: " + uri.toString());
+                logger.log(Level.WARNING, () -> "Missing resource requested: " + uri.toString());
                 exchange.getResponseHeaders().add("Upgrade-Insecure-Requests", "1");
                 exchange.sendResponseHeaders(404, -1l);
             }
         } catch (IOException ioe) {
-            logger.log(Level.ERROR, "Error processing file " + exchange.getRequestURI().toString(), ioe);
+            logger.log(Level.ERROR, () -> "Error processing file " + exchange.getRequestURI().toString(), ioe);
         }
     }
 

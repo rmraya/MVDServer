@@ -112,6 +112,7 @@ public class MVDServer {
         if (config.has("stopWord")) {
             stopWord = config.getString("stopWord");
         }
+        logger.log(Level.INFO, () -> "Configuration loaded from " + configFile);
     }
 
     public MVDServer(String[] args) throws IOException, KeyStoreException, UnrecoverableKeyException,
@@ -134,7 +135,8 @@ public class MVDServer {
         }
         loadConfig();
         webServer = HttpServer.create(new InetSocketAddress(httpPort), 0);
-        webServer.setExecutor(new ThreadPoolExecutor(4, 8, 30, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(100)));
+        webServer
+                .setExecutor(new ThreadPoolExecutor(4, 8, 30, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(100)));
 
         if (!keystore.isEmpty() && !password.isEmpty() && httpsPort != -1) {
             KeyStore store = KeyStore.getInstance("JKS");
@@ -169,8 +171,7 @@ public class MVDServer {
         if (File.separator.equals("\\")) {
             launcher = "   server.bat ";
         }
-        String help = "Usage:\n\n" + launcher + "[-help] [-version] -config config.json\n"
-                + "Where:\n\n"
+        String help = "Usage:\n\n" + launcher + "[-help] [-version] -config config.json\n" + "Where:\n\n"
                 + "   -help:      (optional) Display this help information and exit\n"
                 + "   -version:   (optional) Display version & build information and exit\n"
                 + "   -config:    Load configuration from JSON file\n";
@@ -205,23 +206,23 @@ public class MVDServer {
     }
 
     public static String[] fixPath(String[] args) {
-		List<String> result = new ArrayList<>();
-		String current = "";
-		for (int i = 0; i < args.length; i++) {
-			String arg = args[i];
-			if (arg.startsWith("-")) {
-				if (!current.isEmpty()) {
-					result.add(current.trim());
-					current = "";
-				}
-				result.add(arg);
-			} else {
-				current = current + " " + arg;
-			}
-		}
-		if (!current.isEmpty()) {
-			result.add(current.trim());
-		}
-		return result.toArray(new String[result.size()]);
-	}
+        List<String> result = new ArrayList<>();
+        String current = "";
+        for (int i = 0; i < args.length; i++) {
+            String arg = args[i];
+            if (arg.startsWith("-")) {
+                if (!current.isEmpty()) {
+                    result.add(current.trim());
+                    current = "";
+                }
+                result.add(arg);
+            } else {
+                current = current + " " + arg;
+            }
+        }
+        if (!current.isEmpty()) {
+            result.add(current.trim());
+        }
+        return result.toArray(new String[result.size()]);
+    }
 }
