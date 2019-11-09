@@ -52,6 +52,7 @@ public class MVDServer {
 
     private int httpPort = 8080;
     private int httpsPort = -1;
+    private String configFile = "config.json";
     private String hostName = "";
     private String keystore = "";
     private String password = "";
@@ -75,9 +76,9 @@ public class MVDServer {
         }
     }
 
-    private void loadConfig(String file) throws IOException {
+    private void loadConfig() throws IOException {
         StringBuilder builder = new StringBuilder();
-        try (FileInputStream stream = new FileInputStream(new File(file))) {
+        try (FileInputStream stream = new FileInputStream(new File(configFile))) {
             try (InputStreamReader reader = new InputStreamReader(stream)) {
                 try (BufferedReader buffer = new BufferedReader(reader)) {
                     String line = buffer.readLine();
@@ -128,10 +129,10 @@ public class MVDServer {
                 System.exit(0);
             }
             if (param.equals("-config") && (i + 1) < params.length) {
-                loadConfig(params[i + 1]);
+                configFile = params[i + 1];
             }
         }
-
+        loadConfig();
         webServer = HttpServer.create(new InetSocketAddress(httpPort), 0);
         webServer.setExecutor(new ThreadPoolExecutor(4, 8, 30, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(100)));
 

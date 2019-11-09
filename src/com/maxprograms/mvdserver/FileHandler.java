@@ -21,7 +21,8 @@ import java.io.OutputStream;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
 import java.net.URI;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
@@ -31,13 +32,17 @@ import org.json.JSONObject;
 
 public class FileHandler implements HttpHandler {
 
+    private static final long CACHETIME = 10 * 60 * 1000l;
+
     private static Logger logger = System.getLogger(FileHandler.class.getName());
 
     private JSONObject contentTypes;
     private MVDServer parent;
+    private Map<String, Long> cachedResources;
 
     public FileHandler(MVDServer parent) throws IOException {
         this.parent = parent;
+        cachedResources = new HashMap<>();
         loadContentTypes();
     }
 
@@ -52,8 +57,19 @@ public class FileHandler implements HttpHandler {
             }
             if (url.startsWith("/stop?key=")) {
                 logger.log(Level.INFO, "Stop requested");
-                parent.stopServer(url.substring("/stop?key=".length()).trim());      
-                return;          
+                parent.stopServer(url.substring("/stop?key=".length()).trim());
+                return;
+            }
+            Headers headers = exchange.getRequestHeaders();
+
+            if (cachedResources.containsKey(url) && !headers.get("If-None-Match").isEmpty()) {
+                Long cached = cachedResources.get(url);
+                if (cached + CACHETIME < System.currentTimeMillis()) {
+                    System.out.println("Cached " + url);
+                    exchange.sendResponseHeaders(304, -1l);
+                    return;
+                }
+                cachedResources.remove(url);
             }
 
             File resource = new File(parent.getWebDir(), url);
@@ -80,15 +96,6 @@ public class FileHandler implements HttpHandler {
                 exchange.getResponseHeaders().add("Referrer-Policy", "no-referrer-when-downgrade");
                 exchange.getResponseHeaders().add("Feature-Policy", "microphone 'none'; camera 'none'");
 
-                Headers headers = exchange.getRequestHeaders();
-                if (headers.containsKey("If-None-Match")) {
-                    List<String> value = headers.get("If-None-Match");
-                    if (!value.isEmpty()
-                            && ("LM" + resource.lastModified() + "L" + resource.length()).equals(value.get(0))) {
-                        exchange.sendResponseHeaders(304, -1l);
-                        return;
-                    }
-                }
                 exchange.sendResponseHeaders(200, resource.length());
                 try (FileInputStream stream = new FileInputStream(resource)) {
                     try (OutputStream os = exchange.getResponseBody()) {
@@ -99,6 +106,7 @@ public class FileHandler implements HttpHandler {
                         }
                     }
                 }
+                cachedResources.put(url, System.currentTimeMillis());
             } else {
                 logger.log(Level.WARNING, "Missing resource requested: " + uri.toString());
                 exchange.getResponseHeaders().add("Upgrade-Insecure-Requests", "1");
