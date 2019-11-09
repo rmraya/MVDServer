@@ -65,7 +65,7 @@ public class FileHandler implements HttpHandler {
             if (cachedResources.containsKey(url)) {
                 if (!headers.get("If-None-Match").isEmpty()) {
                     Long cached = cachedResources.get(url);
-                    if (cached + CACHETIME < System.currentTimeMillis()) {
+                    if (cached + CACHETIME > System.currentTimeMillis()) {
                         System.out.println("Cached " + url);
                         exchange.sendResponseHeaders(304, -1l);
                         return;
