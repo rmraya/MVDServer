@@ -21,8 +21,6 @@ import java.io.OutputStream;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
 
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
@@ -32,18 +30,16 @@ import org.json.JSONObject;
 
 public class FileHandler implements HttpHandler {
 
-    private static final long CACHETIME = 10 * 60 * 1000l;
-
     private static Logger logger = System.getLogger(FileHandler.class.getName());
 
     private JSONObject contentTypes;
+    private JSONObject cacheTimes;
     private MVDServer parent;
-    private Map<String, Long> cachedResources;
 
     public FileHandler(MVDServer parent) throws IOException {
         this.parent = parent;
-        cachedResources = new HashMap<>();
         loadContentTypes();
+        loadCacheTimes();
     }
 
     @Override
@@ -60,24 +56,13 @@ public class FileHandler implements HttpHandler {
                 parent.stopServer(url.substring("/stop?key=".length()).trim());
                 return;
             }
-            Headers headers = exchange.getRequestHeaders();
-
-            if (cachedResources.containsKey(url)) {
-                if (!headers.get("If-None-Match").isEmpty()) {
-                    Long cached = cachedResources.get(url);
-                    if (cached + CACHETIME > System.currentTimeMillis()) {
-                        exchange.sendResponseHeaders(304, -1l);
-                        return;
-                    }
-                    cachedResources.remove(url);
-                }
-            }
 
             File resource = new File(parent.getWebDir(), url);
 
             if (resource.exists()) {
-                cachedResources.put(url, System.currentTimeMillis());
+                String etag = "W/" + resource.lastModified() + "L" + resource.length();
                 String contentType = "text/html";
+                String cacheTime = "";
                 String name = resource.getName().toLowerCase();
                 if (name.indexOf('.') != -1) {
                     String extension = name.substring(name.lastIndexOf('.'));
@@ -86,8 +71,24 @@ public class FileHandler implements HttpHandler {
                     } else {
                         logger.log(Level.INFO, () -> "Unknown extension: " + extension);
                     }
+                    if (cacheTimes.has(extension)) {
+                        cacheTime = "public, max-age=" + cacheTimes.getInt(extension);
+                    }
                 }
-                exchange.getResponseHeaders().add("ETag", "LM" + resource.lastModified() + "L" + resource.length());
+
+                Headers headers = exchange.getRequestHeaders();
+
+                String pragma = headers.getFirst("Pragma");
+                String cacheControl = headers.getFirst("Cache-Control");
+                String etagMatch = headers.getFirst("If-None-Match");
+
+                if (!("no-cache".equalsIgnoreCase(pragma) || "no-cache".equalsIgnoreCase(cacheControl)
+                        || "max-age=0".equalsIgnoreCase(cacheControl) || !etag.equalsIgnoreCase(etagMatch))) {
+                    exchange.sendResponseHeaders(304, -1l);
+                    return;
+                }
+
+                exchange.getResponseHeaders().add("ETag", etag);
                 exchange.getResponseHeaders().add("content-type", contentType);
                 exchange.getResponseHeaders().add("X-FRAME-OPTIONS", "sameorigin");
                 exchange.getResponseHeaders().add("X-XSS-Protection", "1; mode=block");
@@ -97,6 +98,9 @@ public class FileHandler implements HttpHandler {
                 exchange.getResponseHeaders().add("Content-Security-Policy", "report-uri https://maxprograms.com");
                 exchange.getResponseHeaders().add("Referrer-Policy", "no-referrer-when-downgrade");
                 exchange.getResponseHeaders().add("Feature-Policy", "microphone 'none'; camera 'none'");
+                if (!cacheTime.isEmpty()) {
+                    exchange.getResponseHeaders().add("Cache-Control", cacheTime);
+                }
 
                 exchange.sendResponseHeaders(200, resource.length());
                 try (FileInputStream stream = new FileInputStream(resource)) {
@@ -108,6 +112,7 @@ public class FileHandler implements HttpHandler {
                         }
                     }
                 }
+
             } else {
                 logger.log(Level.WARNING, () -> "Missing resource requested: " + uri.toString());
                 exchange.getResponseHeaders().add("Upgrade-Insecure-Requests", "1");
@@ -133,6 +138,23 @@ public class FileHandler implements HttpHandler {
             }
         }
         contentTypes = new JSONObject(builder.toString());
+    }
+
+    private void loadCacheTimes() throws IOException {
+        StringBuilder builder = new StringBuilder();
+        try (InputStream stream = FileHandler.class.getResourceAsStream("CacheTimes.json")) {
+            try (InputStreamReader reader = new InputStreamReader(stream)) {
+                try (BufferedReader buffer = new BufferedReader(reader)) {
+                    String line = buffer.readLine();
+                    while (line != null) {
+                        builder.append(line);
+                        builder.append('\n');
+                        line = buffer.readLine();
+                    }
+                }
+            }
+        }
+        cacheTimes = new JSONObject(builder.toString());
     }
 
 }
