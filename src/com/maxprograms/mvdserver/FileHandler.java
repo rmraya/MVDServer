@@ -59,6 +59,10 @@ public class FileHandler implements HttpHandler {
 
             File resource = new File(parent.getWebDir(), url);
 
+            if (resource.isDirectory()) {
+                resource = new File(resource, "index.html");
+            }
+
             if (resource.exists()) {
                 String etag = "W/" + resource.lastModified() + "L" + resource.length();
                 String contentType = "text/html";
