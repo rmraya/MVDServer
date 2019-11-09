@@ -66,25 +66,17 @@ public class FileHandler implements HttpHandler {
                 if (!headers.get("If-None-Match").isEmpty()) {
                     Long cached = cachedResources.get(url);
                     if (cached + CACHETIME > System.currentTimeMillis()) {
-                        System.out.println("Cached " + url);
                         exchange.sendResponseHeaders(304, -1l);
                         return;
                     }
-                    System.out.println("Caches is too old for " + url);
                     cachedResources.remove(url);
-                } else {
-                    System.out.println("No cached version requested for " + url);
                 }
-            } else {
-                System.out.println(url + " not cached");
             }
 
             File resource = new File(parent.getWebDir(), url);
 
             if (resource.exists()) {
-
                 cachedResources.put(url, System.currentTimeMillis());
-
                 String contentType = "text/html";
                 String name = resource.getName().toLowerCase();
                 if (name.indexOf('.') != -1) {
