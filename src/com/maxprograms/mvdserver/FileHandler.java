@@ -135,7 +135,6 @@ public class FileHandler implements HttpHandler {
                     String line = buffer.readLine();
                     while (line != null) {
                         builder.append(line);
-                        builder.append('\n');
                         line = buffer.readLine();
                     }
                 }
@@ -152,7 +151,6 @@ public class FileHandler implements HttpHandler {
                     String line = buffer.readLine();
                     while (line != null) {
                         builder.append(line);
-                        builder.append('\n');
                         line = buffer.readLine();
                     }
                 }
