@@ -3,12 +3,12 @@
 A simple web server that supports HTTP and HTTPS.
 
 ```bash
-server.sh [-help] [-version] -config config.json
+server.sh [-help] [-version] [-config config.json]
 Where:
 
    -help:      (optional) Display this help information and exit
    -version:   (optional) Display version & build information and exit
-   -config:    Load configuration from JSON file
+   -config:    (optional) Load configuration from JSON file (default: config.json)
 ```
 
 Edit the provided `config.json` (see below) and personalize your settings or create a new JSON file withe the ame fields.
