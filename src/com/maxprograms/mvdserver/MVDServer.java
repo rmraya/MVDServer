@@ -178,7 +178,7 @@ public class MVDServer {
         System.out.println(help);
     }
 
-    private void run() throws IOException {
+    private void run() {
         if (secureServer != null) {
             secureServer.start();
             logger.log(Level.INFO, "HTTPS Server started on port " + httpsPort);

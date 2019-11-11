@@ -21,7 +21,7 @@ public class RedirectHandler implements HttpHandler {
 
     private MVDServer parent;
 
-    public RedirectHandler(MVDServer parent) throws IOException {
+    public RedirectHandler(MVDServer parent) {
         this.parent = parent;
     }
 
