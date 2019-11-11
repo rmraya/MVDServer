@@ -2,7 +2,7 @@
 
 A simple web server that supports HTTP and HTTPS.
 
-```bash
+```text
 server.sh [-help] [-version] [-config config.json]
 Where:
 
@@ -24,3 +24,14 @@ Edit the provided `config.json` (see below) and personalize your settings or cre
     "stopWord": "halt"
 }
 ```
+
+## Requirements
+
+- JDK 11 or newer is required for compiling and building. Pre-built binaries already include everything you need to run all options.
+- Apache Ant 1.10.6 or newer
+
+## Building
+
+- Checkout this repository.
+- Point your JAVA_HOME variable to JDK 11
+- Run `ant` to generate a binary distribution in `./dist`
