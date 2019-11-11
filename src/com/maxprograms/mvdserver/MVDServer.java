@@ -171,10 +171,10 @@ public class MVDServer {
         if (File.separator.equals("\\")) {
             launcher = "   server.bat ";
         }
-        String help = "Usage:\n\n" + launcher + "[-help] [-version] -config config.json\n" + "Where:\n\n"
+        String help = "Usage:\n\n" + launcher + "[-help] [-version] [-config config.json]\n" + "Where:\n\n"
                 + "   -help:      (optional) Display this help information and exit\n"
                 + "   -version:   (optional) Display version & build information and exit\n"
-                + "   -config:    Load configuration from JSON file\n";
+                + "   -config:    (optional) Load configuration from JSON file (default: config.json)\n";
         System.out.println(help);
     }
 

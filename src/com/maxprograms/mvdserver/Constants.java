@@ -18,5 +18,5 @@ public class Constants {
     }
 
     public static final String VERSION = "1.0.0";
-    public static final String BUILD = "20191109_1248";
+    public static final String BUILD = "201911110736_1248";
 }
