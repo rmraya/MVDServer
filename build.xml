@@ -5,7 +5,6 @@
     <property name="build.compiler" value="javac10+"/>
     <path id="MVDServer.classpath">
         <pathelement location="lib/json.jar"/>
-        <pathelement location="lib/mapdb.jar"/>
     </path>
     <condition property="isWindows"> 
         <os family="windows"/>
