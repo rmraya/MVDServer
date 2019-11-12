@@ -11,7 +11,7 @@ Where:
    -config:    (optional) Load configuration from JSON file (default: config.json)
 ```
 
-Edit the provided `config.json` (see below) and personalize your settings or create a new JSON file withe the ame fields.
+Edit the provided `config.json` (see below) and personalize your settings or create a new JSON file withe the same fields.
 
 ```JSON
 {
