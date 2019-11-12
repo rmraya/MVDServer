@@ -107,16 +107,20 @@ public class FileHandler implements HttpHandler {
                 }
 
                 exchange.sendResponseHeaders(200, resource.length());
-                try (FileInputStream stream = new FileInputStream(resource)) {
-                    try (OutputStream os = exchange.getResponseBody()) {
-                        byte[] array = new byte[2048];
-                        int read;
-                        while ((read = stream.read(array)) != -1) {
-                            os.write(array, 0, read);
+
+                if ("GET".equals(exchange.getRequestMethod())) {
+                    try (FileInputStream stream = new FileInputStream(resource)) {
+                        try (OutputStream os = exchange.getResponseBody()) {
+                            byte[] array = new byte[2048];
+                            int read;
+                            while ((read = stream.read(array)) != -1) {
+                                os.write(array, 0, read);
+                            }
                         }
                     }
+                } else {
+                    logger.log(Level.INFO, exchange.getRequestMethod() + " request received for " + url);
                 }
-
             } else {
                 logger.log(Level.WARNING, () -> "Missing resource requested: " + uri.toString());
                 exchange.getResponseHeaders().add("Upgrade-Insecure-Requests", "1");
