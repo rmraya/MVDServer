@@ -118,8 +118,6 @@ public class FileHandler implements HttpHandler {
                             }
                         }
                     }
-                } else {
-                    logger.log(Level.INFO, exchange.getRequestMethod() + " request received for " + url);
                 }
             } else {
                 logger.log(Level.WARNING, () -> "Missing resource requested: " + uri.toString());
