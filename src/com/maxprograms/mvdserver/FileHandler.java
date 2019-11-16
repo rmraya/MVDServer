@@ -20,8 +20,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.URI;
 
 import com.sun.net.httpserver.Headers;
