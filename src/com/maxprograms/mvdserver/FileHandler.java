@@ -54,8 +54,6 @@ public class FileHandler implements HttpHandler {
                 url = "/index.html";
             }
             if (url.startsWith("/stop?key=")) {
-                InetAddress from = exchange.getRemoteAddress().getAddress();
-                logger.log(Level.INFO, () -> "Stop requested from " + from.getHostAddress());
                 parent.stopServer(url.substring("/stop?key=".length()).trim());
                 return;
             }
