@@ -20,12 +20,6 @@
     <target name="clean">
         <delete dir="bin"/>
     </target>
-    <target name="MVDServer">
-        <java classname="com.maxprograms.mvdserver.Server" failonerror="true" fork="yes">
-            <arg line="-webDir  /Users/rmraya/Documents/GitHub/TMSWeb"/>
-            <classpath refid="run.TmsServer.classpath"/>
-        </java>
-    </target>
     <target name="distclean">
         <delete dir="dist" failonerror="false"/>
     </target>

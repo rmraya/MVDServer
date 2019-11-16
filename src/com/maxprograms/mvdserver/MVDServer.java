@@ -69,52 +69,6 @@ public class MVDServer {
         }
     }
 
-    private void setWebDir(String dir) throws IOException {
-        webDir = new File(dir);
-        if (!webDir.exists()) {
-            Files.createDirectories(webDir.toPath());
-        }
-    }
-
-    private void loadConfig() throws IOException {
-        StringBuilder builder = new StringBuilder();
-        try (FileInputStream stream = new FileInputStream(new File(configFile))) {
-            try (InputStreamReader reader = new InputStreamReader(stream)) {
-                try (BufferedReader buffer = new BufferedReader(reader)) {
-                    String line = buffer.readLine();
-                    while (line != null) {
-                        builder.append(line);
-                        builder.append('\n');
-                        line = buffer.readLine();
-                    }
-                }
-            }
-        }
-        JSONObject config = new JSONObject(builder.toString());
-        if (config.has("httpPort")) {
-            httpPort = config.getInt("httpPort");
-        }
-        if (config.has("httpsPort")) {
-            httpsPort = config.getInt("httpsPort");
-        }
-        if (config.has("keystore")) {
-            keystore = config.getString("keystore");
-        }
-        if (config.has("password")) {
-            password = config.getString("password");
-        }
-        if (config.has("webDir")) {
-            setWebDir(config.getString("webDir"));
-        }
-        if (config.has("hostName")) {
-            hostName = config.getString("hostName");
-        }
-        if (config.has("stopWord")) {
-            stopWord = config.getString("stopWord");
-        }
-        logger.log(Level.INFO, () -> "Configuration loaded from " + configFile);
-    }
-
     public MVDServer(String[] args) throws IOException, KeyStoreException, UnrecoverableKeyException,
             NoSuchAlgorithmException, KeyManagementException, CertificateException {
         String[] params = fixPath(args);
@@ -166,6 +120,52 @@ public class MVDServer {
         }
     }
 
+    private void setWebDir(String dir) throws IOException {
+        webDir = new File(dir);
+        if (!webDir.exists()) {
+            Files.createDirectories(webDir.toPath());
+        }
+    }
+
+    private void loadConfig() throws IOException {
+        StringBuilder builder = new StringBuilder();
+        try (FileInputStream stream = new FileInputStream(new File(configFile))) {
+            try (InputStreamReader reader = new InputStreamReader(stream)) {
+                try (BufferedReader buffer = new BufferedReader(reader)) {
+                    String line = buffer.readLine();
+                    while (line != null) {
+                        builder.append(line);
+                        builder.append('\n');
+                        line = buffer.readLine();
+                    }
+                }
+            }
+        }
+        JSONObject config = new JSONObject(builder.toString());
+        if (config.has("httpPort")) {
+            httpPort = config.getInt("httpPort");
+        }
+        if (config.has("httpsPort")) {
+            httpsPort = config.getInt("httpsPort");
+        }
+        if (config.has("keystore")) {
+            keystore = config.getString("keystore");
+        }
+        if (config.has("password")) {
+            password = config.getString("password");
+        }
+        if (config.has("webDir")) {
+            setWebDir(config.getString("webDir"));
+        }
+        if (config.has("hostName")) {
+            hostName = config.getString("hostName");
+        }
+        if (config.has("stopWord")) {
+            stopWord = config.getString("stopWord");
+        }
+        logger.log(Level.INFO, () -> "Configuration loaded from " + configFile);
+    }
+
     private static void help() {
         String launcher = "    server.sh ";
         if (File.separator.equals("\\")) {
@@ -187,9 +187,9 @@ public class MVDServer {
         logger.log(Level.INFO, "Server started on port " + httpPort);
     }
 
-    protected File getWebDir() {
+    protected File getWebDir() throws IOException {
         if (webDir == null) {
-            webDir = new File(System.getProperty("user.dir") + File.separator + "www");
+            throw new IOException("Parameter 'webDir' not set.");
         }
         return webDir;
     }

@@ -20,6 +20,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.URI;
 
 import com.sun.net.httpserver.Headers;
@@ -52,13 +54,13 @@ public class FileHandler implements HttpHandler {
                 url = "/index.html";
             }
             if (url.startsWith("/stop?key=")) {
-                logger.log(Level.INFO, "Stop requested");
+                InetAddress from = exchange.getRemoteAddress().getAddress();
+                logger.log(Level.INFO, () -> "Stop requested from " + from.getHostAddress());
                 parent.stopServer(url.substring("/stop?key=".length()).trim());
                 return;
             }
 
             File resource = new File(parent.getWebDir(), url);
-
             if (resource.isDirectory()) {
                 resource = new File(resource, "index.html");
             }
@@ -125,7 +127,8 @@ public class FileHandler implements HttpHandler {
                 exchange.sendResponseHeaders(404, -1l);
             }
         } catch (IOException ioe) {
-            logger.log(Level.ERROR, () -> "Error processing file " + exchange.getRequestURI().toString(), ioe);
+            logger.log(Level.ERROR,
+                    () -> "Received `" + ioe.getMessage() + "` processing " + exchange.getRequestURI().toString());
         }
     }
 
