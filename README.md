@@ -26,6 +26,7 @@ Edit the provided `config.json` (see below) and personalize your settings or cre
     "stopWord": "halt"
 }
 ```
+Ready to use binaries and configuration information are available at (MVDServer home page)[https://www.mvdsoftware.com/tools/mvdserver.html].
 
 ## Requirements
 
