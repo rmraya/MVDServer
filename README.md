@@ -2,6 +2,8 @@
 
 A simple web server that supports HTTP and HTTPS.
 
+If you use binaries from the command line, running `.\server.bat` or `./server.sh` without parameters displays help for using MVDServer.
+
 ```text
 server.sh [-help] [-version] [-config config.json]
 Where:
