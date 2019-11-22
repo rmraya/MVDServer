@@ -57,7 +57,12 @@ public class FileHandler implements HttpHandler {
                 parent.stopServer(url.substring("/stop?key=".length()).trim());
                 return;
             }
-
+            if ("/redirects.json".equals(url)) {
+                logger.log(Level.WARNING, () -> "Rejected access to " + uri.toString());
+                exchange.sendResponseHeaders(403, -1l);
+                return;
+            }
+            
             File resource = new File(parent.getWebDir(), url);
             if (resource.isDirectory()) {
                 resource = new File(resource, "index.html");
