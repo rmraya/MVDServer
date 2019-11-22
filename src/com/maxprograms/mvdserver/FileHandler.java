@@ -34,12 +34,14 @@ public class FileHandler implements HttpHandler {
 
     private JSONObject contentTypes;
     private JSONObject cacheTimes;
+    private JSONObject permanentRedirects;
     private MVDServer parent;
 
     public FileHandler(MVDServer parent) throws IOException {
         this.parent = parent;
         loadContentTypes();
         loadCacheTimes();
+        loadRedirects();
     }
 
     @Override
@@ -118,9 +120,16 @@ public class FileHandler implements HttpHandler {
                     }
                 }
             } else {
-                logger.log(Level.WARNING, () -> "Missing resource requested: " + uri.toString());
-                exchange.getResponseHeaders().add("Upgrade-Insecure-Requests", "1");
-                exchange.sendResponseHeaders(404, -1l);
+                if (permanentRedirects.has(url)) {
+                    String newLocation = permanentRedirects.getString(url);
+                    exchange.getResponseHeaders().add("Location", newLocation);
+                    exchange.sendResponseHeaders(301, -1);
+                    logger.log(Level.INFO, () -> "Redirected " + uri.toString() + " to " + newLocation);
+                } else {
+                    logger.log(Level.WARNING, () -> "Missing resource requested: " + uri.toString());
+                    exchange.getResponseHeaders().add("Upgrade-Insecure-Requests", "1");
+                    exchange.sendResponseHeaders(404, -1l);
+                }
             }
         } catch (IOException ioe) {
             logger.log(Level.ERROR,
@@ -160,4 +169,24 @@ public class FileHandler implements HttpHandler {
         cacheTimes = new JSONObject(builder.toString());
     }
 
+    private void loadRedirects() throws IOException {
+        StringBuilder builder = new StringBuilder();
+        File redirectsFile = new File(parent.getWebDir(), "redirects.json");
+        if (!redirectsFile.exists()) {
+            permanentRedirects = new JSONObject();
+            return;
+        }
+        try (InputStream stream = new FileInputStream(redirectsFile)) {
+            try (InputStreamReader reader = new InputStreamReader(stream)) {
+                try (BufferedReader buffer = new BufferedReader(reader)) {
+                    String line = buffer.readLine();
+                    while (line != null) {
+                        builder.append(line);
+                        line = buffer.readLine();
+                    }
+                }
+            }
+        }
+        permanentRedirects = new JSONObject(builder.toString());
+    }
 }

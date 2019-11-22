@@ -60,6 +60,7 @@ public class MVDServer {
     private String password = "";
     private String stopWord = "";
     private File webDir;
+    private boolean secure;
 
     public static void main(String[] args) {
         try {
@@ -117,6 +118,7 @@ public class MVDServer {
 
             logger.log(Level.INFO, "HTTPS Server created");
             webServer.createContext("/", new RedirectHandler(this));
+            secure = true;
         } else {
             webServer.createContext("/", new FileHandler(this));
         }
@@ -209,6 +211,10 @@ public class MVDServer {
 
     protected String getHostName() {
         return hostName;
+    }
+
+    protected boolean isSecure() {
+        return secure;
     }
 
     public static String[] fixPath(String[] args) {
