@@ -31,9 +31,11 @@ public class RedirectHandler implements HttpHandler {
 
         String newLocation = "https://" + parent.getHostName() + uri.toString();
 
+        exchange.getResponseHeaders().add("Host", parent.getHostName());
         exchange.getResponseHeaders().add("Upgrade-Insecure-Requests", "1");
         exchange.getResponseHeaders().add("Location", newLocation);
         exchange.getResponseHeaders().add("Non-Authoritative-Reason", "HSTS");
+        exchange.getRequestHeaders().add("Cache-Control", "no-store");
         exchange.sendResponseHeaders(307, -1);
     }
 

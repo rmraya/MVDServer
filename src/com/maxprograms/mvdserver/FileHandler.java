@@ -47,6 +47,8 @@ public class FileHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) {
         try {
+            exchange.getResponseHeaders().add("Host", parent.getHostName());
+
             URI uri = exchange.getRequestURI();
             String url = uri.toString();
 
@@ -86,7 +88,7 @@ public class FileHandler implements HttpHandler {
                 }
 
                 Headers headers = exchange.getRequestHeaders();
-
+                
                 String pragma = headers.getFirst("Pragma");
                 String cacheControl = headers.getFirst("Cache-Control");
                 String etagMatch = headers.getFirst("If-None-Match");
@@ -96,7 +98,7 @@ public class FileHandler implements HttpHandler {
                     exchange.sendResponseHeaders(304, -1l);
                     return;
                 }
-
+                
                 exchange.getResponseHeaders().add("ETag", etag);
                 exchange.getResponseHeaders().add("content-type", contentType);
                 exchange.getResponseHeaders().add("X-FRAME-OPTIONS", "sameorigin");
