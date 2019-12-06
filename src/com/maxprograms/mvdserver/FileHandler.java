@@ -64,7 +64,10 @@ public class FileHandler implements HttpHandler {
                 exchange.sendResponseHeaders(403, -1l);
                 return;
             }
-            
+            if (url.indexOf('?') != -1) {
+                url = url.substring(0, url.indexOf('?'));
+            }
+
             File resource = new File(parent.getWebDir(), url);
             if (resource.isDirectory()) {
                 resource = new File(resource, "index.html");
@@ -88,7 +91,7 @@ public class FileHandler implements HttpHandler {
                 }
 
                 Headers headers = exchange.getRequestHeaders();
-                
+
                 String pragma = headers.getFirst("Pragma");
                 String cacheControl = headers.getFirst("Cache-Control");
                 String etagMatch = headers.getFirst("If-None-Match");
@@ -98,7 +101,7 @@ public class FileHandler implements HttpHandler {
                     exchange.sendResponseHeaders(304, -1l);
                     return;
                 }
-                
+
                 exchange.getResponseHeaders().add("ETag", etag);
                 exchange.getResponseHeaders().add("content-type", contentType);
                 exchange.getResponseHeaders().add("X-FRAME-OPTIONS", "sameorigin");
