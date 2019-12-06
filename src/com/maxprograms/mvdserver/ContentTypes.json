@@ -8,7 +8,7 @@
     ".js": "application/x-javascript",
     ".json": "application/json",
     ".ico": "image/x-icon",
-    ".txt": "text/html",
+    ".txt": "text/plain",
     ".bin": "application/octet-stream",
     ".zip": "application/zip",
     ".swf": "application/x-shockwave-flash",
