@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Maxprograms.
+ * Copyright (c) 2019-2020 Maxprograms.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 1.0
@@ -18,5 +18,5 @@ public class Constants {
     }
 
     public static final String VERSION = "1.1.0";
-    public static final String BUILD = "20191204_0836";
+    public static final String BUILD = "2019-20201204_0836";
 }
