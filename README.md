@@ -18,6 +18,7 @@ Edit the provided `config.json` (see below) and personalize your settings or cre
 ```JSON
 {
     "hostName": "mysite.com",
+    "ipAddress": "",
     "httpPort": 8080,
     "httpsPort": 8443,
     "keystore": "",
