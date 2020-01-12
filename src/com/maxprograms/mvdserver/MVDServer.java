@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -59,6 +60,7 @@ public class MVDServer {
     private String keystore = "";
     private String password = "";
     private String stopWord = "";
+    private String ipAddress = "";
     private File webDir;
     private boolean secure;
 
@@ -91,7 +93,13 @@ public class MVDServer {
             }
         }
         loadConfig();
-        webServer = HttpServer.create(new InetSocketAddress(httpPort), 0);
+
+        if (!ipAddress.isBlank()) {
+            InetAddress address = InetAddress.getByName(ipAddress);
+            webServer = HttpServer.create(new InetSocketAddress(address, httpPort), 0);
+        } else {
+            webServer = HttpServer.create(new InetSocketAddress(httpPort), 0);
+        }
         webServer
                 .setExecutor(new ThreadPoolExecutor(4, 8, 30, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(100)));
 
@@ -170,6 +178,9 @@ public class MVDServer {
         }
         if (config.has("stopWord")) {
             stopWord = config.getString("stopWord");
+        }
+        if (config.has("ipAddress")) {
+            ipAddress = config.getString("ipAddress");
         }
         logger.log(Level.INFO, () -> "Configuration loaded from " + configFile);
     }
