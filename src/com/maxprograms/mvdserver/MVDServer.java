@@ -118,7 +118,12 @@ public class MVDServer {
             SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
             sslContext.init(keyManager.getKeyManagers(), trustManager.getTrustManagers(), new SecureRandom());
 
-            secureServer = HttpsServer.create(new InetSocketAddress(httpsPort), 0);
+            if (!ipAddress.isBlank()) {
+                InetAddress address = InetAddress.getByName(ipAddress);
+                secureServer = HttpsServer.create(new InetSocketAddress(address, httpsPort), 0);
+            } else {
+                secureServer = HttpsServer.create(new InetSocketAddress(httpsPort), 0);
+            }
             secureServer.setHttpsConfigurator(new HttpsConfigurator(sslContext));
             secureServer.createContext("/", new FileHandler(this));
             secureServer.setExecutor(
