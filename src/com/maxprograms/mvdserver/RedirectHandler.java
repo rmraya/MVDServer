@@ -30,13 +30,16 @@ public class RedirectHandler implements HttpHandler {
         URI uri = exchange.getRequestURI();
 
         String newLocation = "https://" + parent.getHostName() + uri.toString();
-
-        exchange.getResponseHeaders().add("Host", parent.getHostName());
-        exchange.getResponseHeaders().add("Upgrade-Insecure-Requests", "1");
+        exchange.getResponseHeaders().add("X-FRAME-OPTIONS", "sameorigin");
+        exchange.getResponseHeaders().add("X-XSS-Protection", "1; mode=block");
+        exchange.getResponseHeaders().add("X-Content-Type-Options", "nosniff");
+        exchange.getResponseHeaders().add("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+        exchange.getResponseHeaders().add("X-Permitted-Cross-Domain-Policies", "master-only");
+        exchange.getResponseHeaders().add("Content-Security-Policy", "report-uri https://maxprograms.com");
+        exchange.getResponseHeaders().add("Referrer-Policy", "no-referrer-when-downgrade");
+        exchange.getResponseHeaders().add("Feature-Policy", "microphone 'none'; camera 'none'");
         exchange.getResponseHeaders().add("Location", newLocation);
-        exchange.getResponseHeaders().add("Non-Authoritative-Reason", "HSTS");
-        exchange.getRequestHeaders().add("Cache-Control", "no-store");
-        exchange.sendResponseHeaders(307, -1);
+        exchange.sendResponseHeaders(301, -1);
     }
 
 }
