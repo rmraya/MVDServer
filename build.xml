@@ -34,6 +34,7 @@
         <link destDir="dist" modulepath="lib:${java.home}/jmods">
             <module name="mvdserver"/>
         </link>
+        <delete file="lib/mvdserver.jar"/>
         <delete file="dist/lib/jrt-fs.jar"/>
     </target>
     <target name="copyBats" if="isWindows">

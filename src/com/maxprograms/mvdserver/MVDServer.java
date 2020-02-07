@@ -66,11 +66,15 @@ public class MVDServer {
 
     public static void main(String[] args) {
         try {
-            MVDServer instance = new MVDServer(args);
-            instance.run();
-        } catch (IOException | UnrecoverableKeyException | KeyManagementException | KeyStoreException
-                | NoSuchAlgorithmException | CertificateException e) {
-            logger.log(Level.ERROR, e.getMessage(), e);
+            try {
+                MVDServer instance = new MVDServer(args);
+                instance.run();
+            } catch (IOException | UnrecoverableKeyException | KeyManagementException | KeyStoreException
+                    | NoSuchAlgorithmException | CertificateException e) {
+                logger.log(Level.ERROR, e.getMessage(), e);
+            }
+        } catch (Error e) {
+            logger.log(Level.ERROR, "Severe error catched", e);
         }
     }
 
