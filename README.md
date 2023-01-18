@@ -27,17 +27,18 @@ Edit the provided `config.json` (see below) and personalize your settings or cre
     "stopWord": "halt"
 }
 ```
+
 Ready to use binaries and configuration information are available at [MVDServer home page](https://www.mvdsoftware.com/tools/mvdserver.html).
 
 You can find instructions for generating TLS/SSL certificates for using HTTPS with MVDServer at [https://mvdsoftware.com/tools/certificates.html](https://mvdsoftware.com/tools/certificates.html)
 
 ## Requirements
 
-- JDK 11 or newer is required for compiling and building. Pre-built binaries already include everything you need to run all options.
+- JDK 17 or newer is required for compiling and building. Pre-built binaries already include everything you need to run all options.
 - Apache Ant 1.10.6 or newer
 
 ## Building
 
 - Checkout this repository.
-- Point your JAVA_HOME variable to JDK 11
+- Point your JAVA_HOME variable to JDK 17
 - Run `ant` to generate a binary distribution in `./dist`

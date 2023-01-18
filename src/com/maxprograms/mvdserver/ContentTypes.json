@@ -28,5 +28,7 @@
     ".eps": "application/postscript",
     ".msi": "application/octet-stream",
     ".dmg": "application/octet-stream",
-    ".war": "application/octet-stream"
+    ".war": "application/octet-stream",
+    ".avif": "image/avif",
+    ".webp": "image/webp"
 }

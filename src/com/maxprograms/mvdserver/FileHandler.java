@@ -111,7 +111,7 @@ public class FileHandler implements HttpHandler {
                 exchange.getResponseHeaders().add("X-Permitted-Cross-Domain-Policies", "master-only");
                 exchange.getResponseHeaders().add("Content-Security-Policy", "report-uri https://maxprograms.com");
                 exchange.getResponseHeaders().add("Referrer-Policy", "no-referrer-when-downgrade");
-                exchange.getResponseHeaders().add("Feature-Policy", "microphone 'none'; camera 'none'");
+                exchange.getResponseHeaders().add("Permissions-Policy", "microphone=(), camera=()");
                 if (!cacheTime.isEmpty()) {
                     exchange.getResponseHeaders().add("Cache-Control", cacheTime);
                 }
@@ -170,6 +170,9 @@ public class FileHandler implements HttpHandler {
                 try (BufferedReader buffer = new BufferedReader(reader)) {
                     String line = buffer.readLine();
                     while (line != null) {
+                        if (!builder.isEmpty()) {
+                            builder.append('\n');
+                        }
                         builder.append(line);
                         line = buffer.readLine();
                     }
@@ -191,6 +194,9 @@ public class FileHandler implements HttpHandler {
                 try (BufferedReader buffer = new BufferedReader(reader)) {
                     String line = buffer.readLine();
                     while (line != null) {
+                        if (!builder.isEmpty()) {
+                            builder.append('\n');
+                        }
                         builder.append(line);
                         line = buffer.readLine();
                     }
