@@ -66,13 +66,11 @@ public class MVDServer {
 
     public static void main(String[] args) {
         try {
-            try {
-                MVDServer instance = new MVDServer(args);
-                instance.run();
-            } catch (IOException | UnrecoverableKeyException | KeyManagementException | KeyStoreException
-                    | NoSuchAlgorithmException | CertificateException e) {
-                logger.log(Level.ERROR, e.getMessage(), e);
-            }
+            MVDServer instance = new MVDServer(args);
+            instance.run();
+        } catch (IOException | UnrecoverableKeyException | KeyManagementException | KeyStoreException
+                | NoSuchAlgorithmException | CertificateException e) {
+            logger.log(Level.ERROR, e.getMessage(), e);
         } catch (Error e) {
             logger.log(Level.ERROR, "Severe error catched", e);
         }
@@ -104,8 +102,7 @@ public class MVDServer {
         } else {
             webServer = HttpServer.create(new InetSocketAddress(httpPort), 0);
         }
-        webServer
-                .setExecutor(new ThreadPoolExecutor(4, 8, 30, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(100)));
+        webServer.setExecutor(new ThreadPoolExecutor(4, 8, 30, TimeUnit.SECONDS, new ArrayBlockingQueue<>(100)));
 
         if (!keystore.isEmpty() && !password.isEmpty() && httpsPort != -1) {
             KeyStore store = KeyStore.getInstance("JKS");
@@ -130,8 +127,7 @@ public class MVDServer {
             }
             secureServer.setHttpsConfigurator(new HttpsConfigurator(sslContext));
             secureServer.createContext("/", new FileHandler(this));
-            secureServer.setExecutor(
-                    new ThreadPoolExecutor(4, 8, 30, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(100)));
+            secureServer.setExecutor(new ThreadPoolExecutor(4, 8, 30, TimeUnit.SECONDS, new ArrayBlockingQueue<>(100)));
 
             logger.log(Level.INFO, "HTTPS Server created");
             webServer.createContext("/", new RedirectHandler(this));
@@ -199,10 +195,15 @@ public class MVDServer {
         if (File.separator.equals("\\")) {
             launcher = "   server.bat ";
         }
-        String help = "Usage:\n\n" + launcher + "[-help] [-version] [-config config.json]\n" + "Where:\n\n"
-                + "   -help:      (optional) Display this help information and exit\n"
-                + "   -version:   (optional) Display version & build information and exit\n"
-                + "   -config:    (optional) Load configuration from JSON file (default: config.json)\n";
+        String help = "Usage:\n\n" + launcher + """
+                    [-help] [-version] [-config config.json]
+
+                    Where:
+
+                        -help:      (optional) Display this help information and exit
+                        -version:   (optional) Display version & build information and exit
+                        -config:    (optional) Load configuration from JSON file (default: config.json)
+                """;
         System.out.println(help);
     }
 
@@ -239,21 +240,22 @@ public class MVDServer {
 
     public static String[] fixPath(String[] args) {
         List<String> result = new ArrayList<>();
-        String current = "";
+        StringBuilder current = new StringBuilder();
         for (int i = 0; i < args.length; i++) {
             String arg = args[i];
             if (arg.startsWith("-")) {
                 if (!current.isEmpty()) {
-                    result.add(current.trim());
-                    current = "";
+                    result.add(current.toString().trim());
+                    current.setLength(0);
                 }
                 result.add(arg);
             } else {
-                current = current + " " + arg;
+                current.append(' ');
+                current.append(arg);
             }
         }
         if (!current.isEmpty()) {
-            result.add(current.trim());
+            result.add(current.toString().trim());
         }
         return result.toArray(new String[result.size()]);
     }
