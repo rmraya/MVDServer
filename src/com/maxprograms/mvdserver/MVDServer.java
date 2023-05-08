@@ -153,11 +153,12 @@ public class MVDServer {
         try (FileInputStream stream = new FileInputStream(new File(configFile))) {
             try (InputStreamReader reader = new InputStreamReader(stream)) {
                 try (BufferedReader buffer = new BufferedReader(reader)) {
-                    String line = buffer.readLine();
-                    while (line != null) {
+                    String line = null;
+                    while ((line = buffer.readLine()) != null) {
+                        if (!builder.isEmpty()) {
+                            builder.append('\n');
+                        }
                         builder.append(line);
-                        builder.append('\n');
-                        line = buffer.readLine();
                     }
                 }
             }
