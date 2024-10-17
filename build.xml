@@ -44,6 +44,7 @@
     <target name="copyShells" unless="isWindows">
         <description>Copy .sh to /dist</description>
         <copy file="server.sh" todir="dist"/>
+        <chmod dir="dist" perm="ugo+rx" includes="**/*.sh"/>
     </target>
     <target name="dist" depends="link,copyBats,copyShells">
         <description>Prepare distribution</description>

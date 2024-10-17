@@ -47,8 +47,6 @@ public class FileHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) {
         try {
-            exchange.getResponseHeaders().add("Host", parent.getHostName());
-
             URI uri = exchange.getRequestURI();
             String url = uri.toString();
 
