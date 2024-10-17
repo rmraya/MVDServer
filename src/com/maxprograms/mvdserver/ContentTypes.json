@@ -30,5 +30,6 @@
     ".dmg": "application/octet-stream",
     ".war": "application/octet-stream",
     ".avif": "image/avif",
-    ".webp": "image/webp"
+    ".webp": "image/webp",
+    ".svg": "image/svg+xml"
 }

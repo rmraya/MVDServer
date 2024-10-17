@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project basedir="." default="dist" name="MVDServer">
-    <property name="target" value="11"/>
-    <property name="source" value="11"/>
+    <property name="target" value="21"/>
+    <property name="source" value="21"/>
     <property name="build.compiler" value="javac10+"/>
     <path id="MVDServer.classpath">
         <pathelement location="lib/json.jar"/>
@@ -31,7 +31,7 @@
     </target>
     <target name="link" depends="distclean,compile">
         <description>Build Java binaries</description>
-        <link destDir="dist" modulepath="lib:${java.home}/jmods">
+        <link destDir="dist" modulepath="lib:${java.home}/jmods" includeManPages="false" includeHeaders="false" >
             <module name="mvdserver"/>
         </link>
         <delete file="lib/mvdserver.jar"/>
