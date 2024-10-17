@@ -21,6 +21,7 @@ import java.io.OutputStream;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
@@ -148,12 +149,14 @@ public class FileHandler implements HttpHandler {
     private void loadContentTypes() throws IOException {
         StringBuilder builder = new StringBuilder();
         try (InputStream stream = FileHandler.class.getResourceAsStream("ContentTypes.json")) {
-            try (InputStreamReader reader = new InputStreamReader(stream)) {
+            try (InputStreamReader reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
                 try (BufferedReader buffer = new BufferedReader(reader)) {
-                    String line = buffer.readLine();
-                    while (line != null) {
+                    String line = "";
+                    while ((line = buffer.readLine()) != null) {
+                        if (!builder.isEmpty()) {
+                            builder.append('\n');
+                        }
                         builder.append(line);
-                        line = buffer.readLine();
                     }
                 }
             }
@@ -164,15 +167,14 @@ public class FileHandler implements HttpHandler {
     private void loadCacheTimes() throws IOException {
         StringBuilder builder = new StringBuilder();
         try (InputStream stream = FileHandler.class.getResourceAsStream("CacheTimes.json")) {
-            try (InputStreamReader reader = new InputStreamReader(stream)) {
+            try (InputStreamReader reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
                 try (BufferedReader buffer = new BufferedReader(reader)) {
-                    String line = buffer.readLine();
-                    while (line != null) {
+                    String line = "";
+                    while ((line = buffer.readLine()) != null) {
                         if (!builder.isEmpty()) {
                             builder.append('\n');
                         }
                         builder.append(line);
-                        line = buffer.readLine();
                     }
                 }
             }
@@ -190,13 +192,12 @@ public class FileHandler implements HttpHandler {
         try (InputStream stream = new FileInputStream(redirectsFile)) {
             try (InputStreamReader reader = new InputStreamReader(stream)) {
                 try (BufferedReader buffer = new BufferedReader(reader)) {
-                    String line = buffer.readLine();
-                    while (line != null) {
+                    String line = "";
+                    while ((line = buffer.readLine()) != null) {
                         if (!builder.isEmpty()) {
                             builder.append('\n');
                         }
                         builder.append(line);
-                        line = buffer.readLine();
                     }
                 }
             }
